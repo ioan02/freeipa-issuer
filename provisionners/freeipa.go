@@ -142,24 +142,24 @@ func (s *FreeIPAPKI) Sign(ctx context.Context, cr *certmanager.CertificateReques
 	var caPem string
 
 	cert, err := s.client.CertShow(reqCertShow, &freeipa.CertShowOptionalArgs{Chain: freeipa.Bool(true)})
-	if err != nil || len(*cert.Result.CertificateChain) == 0 {
-		log.Error(err, "fail to get certificate FALLBACK", "requestResult", result)
+	// if err != nil || len(*cert.Result.CertificateChain) == 0 {
+	// 	log.Error(err, "fail to get certificate FALLBACK", "requestResult", result)
 
-		c, ok := result.Result.(map[string]interface{})[certKey].(string)
-		if !ok || c == "" {
-			return nil, nil, fmt.Errorf("can't find certificate for: %s", result.String())
-		}
+	// 	c, ok := result.Result.(map[string]interface{})[certKey].(string)
+	// 	if !ok || c == "" {
+	// 		return nil, nil, fmt.Errorf("can't find certificate for: %s", result.String())
+	// 	}
 
-		certPem = formatCertificate(c)
-	} else {
-		for i, c := range *cert.Result.CertificateChain {
-			c = formatCertificate(c)
-			if i == 0 {
-				certPem = c
-			} else {
-				caPem = strings.Join([]string{caPem, c}, "\n\n")
-			}
+	// 	certPem = formatCertificate(c)
+	// } else {
+	for i, c := range *cert.Result.CertificateChain {
+		c = formatCertificate(c)
+		if i == 0 {
+			certPem = c
+		} else {
+			caPem = strings.Join([]string{caPem, c}, "\n\n")
 		}
+		// }
 	}
 
 	return []byte(strings.TrimSpace(certPem)), []byte(strings.TrimSpace(caPem)), nil
